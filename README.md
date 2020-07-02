@@ -7,9 +7,9 @@ Learnmore about hashcat masks at https://hashcat.net/wiki/doku.php?id=mask_attac
 This requires Python3.6+, tested and confirmed broken on anything older.
 
 ## Installation
-Run - `git clone git@github.com:dagonis/syngsong.git` 
-
-Then - `python3 -m pip install -r requirements.txt`
+1. `git clone https://github.com/dagonis/syngsong.git` 
+2. `cd syngsong`
+3. `python3 -m pip install -r requirements.txt`
 
 ### Requirements
 Requires `lyricsgenius`. 
