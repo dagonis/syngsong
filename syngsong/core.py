@@ -1,6 +1,9 @@
-import lyricsgenius
-import string
 import logging
+import os
+import string
+
+import lyricsgenius
+
 
 def basic_password_transform(password_set: set, min_len: int, max_len: int) -> set:
     """Basic password transformations. Add all lower, all upper, and title case
@@ -56,12 +59,18 @@ def generate_passwords(artist: str, genius_api_key:str, masking:str = "", min_le
             logging.info("Found a mask, working on that now")
             raw_mask = masking.lstrip("?").split("?")
             passwords.update(handle_mask(passwords, raw_mask))
-        with open(f"./{artist}_out.txt", "a") as password_out_file:
+        with open(f"./{artist}_tmp.txt", "a") as password_out_file:
             for password in passwords:
                 if min_len <= len(password) <= max_len: #  One last check to make sure we constrain the size of our passwords
                     password_out_file.write(password + "\n")
-    final_file = open(f"./{artist}_out.txt", "r")
-    final_linecount = len(final_file.readlines())
+    final_file = open(f"./{artist}_tmp.txt", "r")
+    final_output = set(final_file.readlines())
+    final_file.close()
+    os.remove(f"./{artist}_tmp.txt")
+    final_linecount = len(final_output)
+    with open(f"./{artist}_out.txt", "w") as password_out_file: #  I am doing this to dedupe the final file
+        for entry in final_output:
+                password_out_file.write(entry)
     logging.info(f"Generated {final_linecount} passwords.")
     return True
 
