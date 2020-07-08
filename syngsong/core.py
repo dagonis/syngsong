@@ -27,7 +27,7 @@ def basic_password_transform(password_set: set, min_len: int, max_len: int) -> s
                 transformed_passwords.add(line.title().replace(" ", "")) #  This lets us get title cased passwords without spaces 
     return transformed_passwords
 
-def generate_passwords(artist: str, genius_api_key:str, masking:str = "", min_len:int = 8, max_len:int = 32) -> bool:
+def generate_passwords(artist: str, genius_api_key:str, masking:str = "", min_len:int = 8, max_len:int = 32, top_songs=0) -> bool:
     """The core of Syngsong. This is where the passwords get created
 
     Args:
@@ -42,7 +42,10 @@ def generate_passwords(artist: str, genius_api_key:str, masking:str = "", min_le
         bool: Return True right now, might do something else later, but this value shouldn't be used anywhere else.
     """
     genius = lyricsgenius.Genius(genius_api_key)
-    genius_artist = genius.search_artist(artist)
+    if top_songs == 0:
+        genius_artist = genius.search_artist(artist)
+    else:
+        genius_artist = genius.search_artist(artist, max_songs=top_songs)
     logging.info("Connection to Genius was successful, generating passwords.")
     for song in genius_artist.songs:
         logging.debug(f"Working on song {song}.")
@@ -52,6 +55,8 @@ def generate_passwords(artist: str, genius_api_key:str, masking:str = "", min_le
         # Setting up some basic sets to build on later
         base_password_lyrics = set([_.translate(str.maketrans('', '', string.punctuation)).strip() for _ in raw_lyrics.splitlines() if not _ == ""])
         base_password_no_space = set([_.replace(" ", "") for _ in base_password_lyrics.copy()])
+        base_password_lyrics.add(song.title)
+        base_password_no_space.add(song.title.replace(" ", ""))
         # Time to do some basic transformation on the base sets of passwords
         passwords.update(basic_password_transform(base_password_lyrics, min_len, max_len))
         passwords.update(basic_password_transform(base_password_no_space, min_len, max_len))
