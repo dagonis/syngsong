@@ -51,9 +51,10 @@ def generate_passwords(artist: str, genius_api_key:str, masking:str = "", min_le
         logging.debug(f"Working on song {song}.")
         # Using a set because I don't want duplicates in the final password set
         passwords = set()
-        raw_lyrics = song.lyrics
+        raw_lyrics = song.lyrics.splitlines()
+        raw_lyrics.append(raw_lyrics[0].split("Lyrics")[-1])
         # Setting up some basic sets to build on later
-        base_password_lyrics = set([_.translate(str.maketrans('', '', string.punctuation)).strip() for _ in raw_lyrics.splitlines() if not _ == ""])
+        base_password_lyrics = set([_.translate(str.maketrans('', '', string.punctuation)).strip() for _ in raw_lyrics if not _ == ""])
         base_password_no_space = set([_.replace(" ", "") for _ in base_password_lyrics.copy()])
         base_password_lyrics.add(song.title)
         base_password_no_space.add(song.title.replace(" ", ""))
